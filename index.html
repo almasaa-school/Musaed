@@ -95,7 +95,7 @@ details.card summary{cursor:pointer;font-weight:700;font-size:14px}
   <textarea id="draft"></textarea>
   <div class="row"><button class="pri" id="addto"></button><button class="sm" id="dreset">إعادة ضبط</button></div>
 </div>
-<p class="note">الحقول بنفس أسماء وترتيب حقول البوابة التعليمية. عند اختيار الدليل، سيتم إدراج أثر تلقائي من البنك، ويمكنك تغيير الأثر يدوياً من القائمة أو التعديل على النص في المسودة.</p>
+<p class="note">عند اختيار الدليل، سيتم إدراج أثر تلقائي من البنك، ويمكنك تغيير الأثر يدوياً من القائمة أو التعديل على النص في المسودة.</p>
 </aside>
 <section id="fields"></section>
 </div>
@@ -302,7 +302,9 @@ function fillSelects(){
     if(!f.bank)return;
     const s=document.querySelector('select[data-k="'+f.k+'"]');
     s.innerHTML="";s.add(new Option("أضف من القائمة...",""));
-    const grp=(a,lab,pre)=>{for(let st=0;st<a.length;st+=10){const og=document.createElement("optgroup");og.label=lab+" – مجموعة "+(st/10+1);a.slice(st,st+10).forEach((t,j)=>og.appendChild(new Option(pre+":"+(st+j))));s.appendChild(og)}};
+    // ======= إصلاح الخطأ هنا =======
+    const grp=(a,lab,pre)=>{for(let st=0;st<a.length;st+=10){const og=document.createElement("optgroup");og.label=lab+" – مجموعة "+(st/10+1);a.slice(st,st+10).forEach((t,j)=>og.appendChild(new Option(t, pre+":"+(st+j))));s.appendChild(og)}};
+    // ==============================
     const cx=isEx()?0:1;
     [cx,1-cx].forEach(x=>grp(f.bank[x],(x?"تحسين":"إجادة"),String(x)));
   });
@@ -326,9 +328,7 @@ function addEv(ta,txt){
   ta.value=v+".";
 }
 
-// ==========================================
-// التعديل الجوهري هنا: التعبئة التلقائية
-// ==========================================
+// التعبئة التلقائية
 $("evsel").onchange=e=>{
   const s=e.target;if(s.value==="")return;
   const i = +itemSel.value;
