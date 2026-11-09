@@ -171,7 +171,7 @@ const D=[
 ["مبادرات محدودة الأثر أو غير موثقة","ضعف تحفيز العاملين وتوزيع المهام","محدودية إشراك الطلبة وأولياء الأمور","عدم ارتباط المبادرات بخطة التحسين","غياب متابعة تقييم أثر المبادرات","ضعف الشراكات المجتمعية الداعمة"]]
 ];
 
-// ===== بنك الآثار الضخم والموسع جداً (أكثر من 15 أثراً لكل بند) =====
+// ===== بنك الآثار الضخم والموسع جداً =====
 const ATHAR = [
 [ // 1. التحصيل الدراسي
   ["مما انعكس أثره في ارتفاع نسبة الطلبة الذين يحققون نسبة الإتقان في المواد الأساسية", "مما ساهم في تحسين نتائج الطلبة في الاختبارات الوطنية والدولية", "مما أدى إلى تجاوز معدلات الرسوب والتسرب وتقليص الفجوات", "مما كان له الأثر في تعميق فهم الطلبة للمفاهيم الأساسية", "مما أسهم في تحسين مستوى الطلبة في المهارات الأساسية", "مما انعكس إيجاباً على نتائج الطلبة في الاختبارات المركزية", "مما أدى إلى إتقان الطلبة للنواتج المستهدفة بمستويات متقدمة", "مما ساعد في ردم الفجوة التحصيلية بين المستويات", "مما عزز ثقة الطلبة بأنفسهم وقدرتهم على التحصيل", "مما انعكس أثره في دقة وكفاءة تقويم الطلبة لأنفسهم", "مما كان له الأثر في تحسين جودة المخرجات التعليمية للصف", "مما أسهم في بناء قاعدة معرفية متينة لدى الطلبة", "مما أدى إلى تحسن ملموس في نتائج الطلبة في التقويمات المختلفة", "مما ساهم في زيادة دافعية الطلبة لإنجاز المهام بجودة عالية", "مما انعكس أثره في انخفاض نسبة الأخطاء المفاهيمية لدى الطلبة"],
@@ -255,6 +255,8 @@ const FL=[
 {k:"f5",t:"التوصيات",bank:REC,rec:true}
 ];
 const MAX=1000;
+// تم تغيير اسم قاعدة البيانات إلى v4 لإجبار المتصفح على تجاهل البيانات القديمة
+const KEY_D="sv_data_v4",KEY_C="sv_cred";
 const $=id=>document.getElementById(id);
 const itemSel=$("item"),gradeSel=$("grade"),box=$("fields");
 D.forEach((d,i)=>itemSel.add(new Option((i+1)+". "+d[0],i)));
@@ -302,9 +304,23 @@ function fillSelects(){
     if(!f.bank)return;
     const s=document.querySelector('select[data-k="'+f.k+'"]');
     s.innerHTML="";s.add(new Option("أضف من القائمة...",""));
-    // ======= إصلاح الخطأ هنا =======
-    const grp=(a,lab,pre)=>{for(let st=0;st<a.length;st+=10){const og=document.createElement("optgroup");og.label=lab+" – مجموعة "+(st/10+1);a.slice(st,st+10).forEach((t,j)=>og.appendChild(new Option(t, pre+":"+(st+j))));s.appendChild(og)}};
-    // ==============================
+    
+    // ======= إصلاح الخطأ: استخدام textContent لضمان ظهور النص =======
+    const grp=(a,lab,pre)=>{
+      for(let st=0;st<a.length;st+=10){
+        const og=document.createElement("optgroup");
+        og.label=lab+" – مجموعة "+(st/10+1);
+        a.slice(st,st+10).forEach((t,j)=>{
+          const opt = document.createElement("option");
+          opt.textContent = t; 
+          opt.value = pre+":"+(st+j);
+          og.appendChild(opt);
+        });
+        s.appendChild(og);
+      }
+    };
+    // ==========================================================
+
     const cx=isEx()?0:1;
     [cx,1-cx].forEach(x=>grp(f.bank[x],(x?"تحسين":"إجادة"),String(x)));
   });
@@ -391,6 +407,10 @@ $("all").onclick=()=>{
   FL.forEach(f=>{const v=$(f.k).value.trim();if(v)parts.push(f.t+":\n"+v)});
   copy(parts.join("\n\n"));
 };
+
+// إدارة الحفظ المحلي
+function save(){try{localStorage.setItem(KEY_D,JSON.stringify({}))}catch(e){}}
+function loadSaved(){}
 
 refresh();
 </script>
